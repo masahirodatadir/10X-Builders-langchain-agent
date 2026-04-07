@@ -1,12 +1,13 @@
 # 10Xbuilder Agents
 
-Agent with LangChain and TypeScript (ESM) that uses tools to solve calculations and return the current time.
+Agent with LangChain and TypeScript (ESM) that uses tools to solve calculations, return the current time, and search flights.
 
 ## Requirements
 
 - Node.js 20+
 - npm 10+
 - OpenRouter API key
+- SerpAPI key (for Google Flights searches)
 
 ## Installation
 
@@ -25,6 +26,8 @@ OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_TEMPERATURE=0
 OPENROUTER_HTTP_REFERER=https://your-app-domain.com
 OPENROUTER_APP_TITLE=10Xbuilder Agents
+SERPAPI_API_KEY=your_serpapi_api_key
+SERPAPI_BASE_URL=https://serpapi.com/search.json
 ```
 
 ## Run in development
@@ -57,6 +60,7 @@ The project is organized in layers so each concern stays isolated and easy to ev
 - **Application layer**: `src/agent/runAgent.ts` exposes a single execution function and supports dependency injection for testing.
 - **Composition layer**: `src/agent/createAgent.ts` assembles model, prompt, and tools into an `AgentExecutor`.
 - **Domain capabilities**: `src/agent/tools/*` defines reusable tools such as `calculator` and `current_time`.
+- **Domain capabilities**: `src/agent/tools/*` defines reusable tools such as `calculator`, `current_time`, and `flight_search`.
 - **Configuration layer**: `src/config/env.ts` loads and validates environment variables with `zod`.
 
 For a deeper architectural breakdown, see `docs/architecture.md`.
@@ -75,6 +79,16 @@ For a deeper architectural breakdown, see `docs/architecture.md`.
 2. Export the tool using LangChain `tool(...)`.
 3. Register it in `src/agent/createAgent.ts`.
 4. Update `src/agent/prompt.ts` to describe when to use it.
+
+## Flight search behavior
+
+- The agent can call `flight_search` for travel questions.
+- It extracts origin, destination, departure date, and optional return date.
+- It searches Google Flights via SerpAPI and returns available options (including fare category when the API provides it).
+- It returns price, schedule, and stopovers.
+- If the user provides a budget, results are grouped into:
+  - `Menor o igual al presupuesto`
+  - `Mayor al presupuesto`
 
 ## Notes
 

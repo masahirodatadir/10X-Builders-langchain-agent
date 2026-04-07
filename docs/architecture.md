@@ -10,6 +10,7 @@ This project implements an agent with LangChain tools using a modular structure 
 4. The agent selects and executes the appropriate tool based on the prompt:
    - `calculator`
    - `current_time`
+   - `flight_search`
 5. `AgentExecutor` returns the final `output` to the caller.
 
 ## Module responsibilities
@@ -23,6 +24,7 @@ This project implements an agent with LangChain tools using a modular structure 
   - Defines the agent behavior and tool-usage instructions.
 - `src/agent/tools/*`
   - Implements reusable domain tools.
+  - Includes `flight_search` to query Google Flights through SerpAPI and normalize results.
 - `src/agent/createAgent.ts`
   - Assembles model, tools, and prompt into the executable agent.
 - `src/agent/runAgent.ts`
@@ -40,3 +42,16 @@ This project implements an agent with LangChain tools using a modular structure 
 - Replace `Function(...)` in `calculator` with a safe parser/evaluator for production.
 - Add new tools under `src/agent/tools` and register them in `createAgent.ts`.
 - Add structured logging when deeper runtime diagnostics are required.
+
+## Flight search flow details
+
+- `flight_search` receives origin, destination, departure date, and optional return date.
+- It calls SerpAPI (`google_flights` engine) and handles one-way or round-trip based on `returnDate`.
+- It normalizes each option with:
+  - `price`
+  - `fareCategory` (when SerpAPI includes `fare_type` or similar)
+  - `segments` (origin/destination + departure/arrival times)
+  - `stops` (count and layover airports)
+- If `budget` is provided, results are grouped into:
+  - `withinBudget` (`<= budget`)
+  - `overBudget` (`> budget`)

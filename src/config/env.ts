@@ -10,6 +10,8 @@ const envSchema = z.object({
   OPENROUTER_TEMPERATURE: z.coerce.number().default(0),
   OPENROUTER_HTTP_REFERER: z.string().url().optional(),
   OPENROUTER_APP_TITLE: z.string().min(1).optional(),
+  SERPAPI_API_KEY: z.string().min(1, 'SERPAPI_API_KEY is required'),
+  SERPAPI_BASE_URL: z.string().url().default('https://serpapi.com/search.json'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;
